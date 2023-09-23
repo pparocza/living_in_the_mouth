@@ -1,9 +1,6 @@
 class Piece {
 
-    constructor(){
-
-        
-    }
+    constructor(){}
 
     initMasterChannel(){
 
@@ -11,28 +8,28 @@ class Piece {
         this.gain.gain.value = 1;
 
         // REVERB
-    
+
         this.c = new MyConvolver(2, 3, audioCtx.sampleRate);
         this.cB = new MyBuffer(2, 3, audioCtx.sampleRate);
         this.cB.makeNoise();
         this.cB.applyRamp(0, 1, 0.01, 0.015, 0.5, 4);
-    
+
         this.c.setBuffer( this.cB.buffer );
         this.c.output.gain.value = 0.25;
 
         // DELAY
-    
+
         this.d = new Effect();
-    
+
         this.dL = randomFloat(0.25, 0.4);
-    
+
         this.d.stereoDelay(this.dL*2, this.dL, 0.2, 1);
         this.d.on();
         this.d.output.gain.value = 0.25;
 
         this.dF = new MyBiquad( 'highpass' , 500 , 1 );
         this.cF = new MyBiquad( 'highpass' , 500 , 1 );
-    
+
         this.f = new MyBiquad( "highpass" , 10 , 1 );
         this.f2 = new MyBiquad("lowpass" , 20000, 1 );
 
@@ -42,7 +39,7 @@ class Piece {
         this.dSend3 = new Effect();
         this.dSend3.randomShortDelay();
         this.dSend3.on();
-        
+
         this.dS3L1 = new MyBuffer2( 1 , 1 , audioCtx.sampleRate );
         this.dS3L2 = new MyBuffer2( 1 , 1 , audioCtx.sampleRate );
         this.dS3L1.noise().fill( 0 );
@@ -61,7 +58,7 @@ class Piece {
 
         this.dS3L1.start();
         this.dS3L2.start();
-    
+
         // DISTORTION
 
         this.w = new MyWaveShaper();
@@ -73,11 +70,11 @@ class Piece {
         // MAIN
 
         this.fadeFilter = new FilterFade(0);
-    
+
         this.masterGain = audioCtx.createGain();
 
         // CONNECTIONS
-    
+
         this.masterGain.connect(this.c.input);
         this.masterGain.connect(this.d.input);
         this.masterGain.connect( this.dSend3In.input );
@@ -94,10 +91,10 @@ class Piece {
         this.gain.connect( this.w.input );
         this.w.connect( this.wF );
         this.wF.connect( this.f );
-    
+
         this.gain.connect(this.f.input);
         this.f.connect(this.f2);
-    
+
         this.f2.connect(this.fadeFilter);
         this.fadeFilter.connect(audioCtx.destination);
 
@@ -107,29 +104,30 @@ class Piece {
 
         this.fund = 2 * randomFloat(160, 180);
         this.gainVal = 0.25;
-    
-        this.pA =  [ 
+
+        this.pA =  [
             'pitch23' , 'pitch27' , 'pitch1' , 'pitch3' , 'pitch7', 'pitch9' , 'pitch10', 'pitch12' , 'pitch13', 'pitch20'
         ];
-    
-        this.pAHigh1 =  [ 
+
+        this.pAHigh1 =  [
             'pitch23' , 'pitch27' , 'pitch1' , 'pitch12' , 'pitch13' , 'pitch20'
         ];
-    
-        this.pALow1 =  [ 
+
+        this.pALow1 =  [
             'pitch23' , 'pitch27' , 'pitch20'
         ];
-    
+
         this.c1A = [1, M2, P4, 1/m3, M6];
-        this.c1B = [1/M2/P4, 1, M2]; 
+        this.c1B = [1/M2/P4, 1, M2];
         this.c1C = [1, M2, M3, P5];
         this.c1D = [1, M2, M3, P5, M6];
-    
+
         this.chordArray = [ this.c1B , this.c1C , this.c1D ]; // c1D , c1C* , c1A , c1B
-    
+
         this.chordIdx = randomInt( 0 , this.chordArray.length );
         this.currentChord = this.chordArray[ this.chordIdx ];
-    
+		this.chord2 = this.chordArray[ randomInt( 0 , this.chordArray.length ) ];
+
         this.div = randomInt( 5 , 11 );
         this.rate = randomFloat( 0.2 , 0.3 );
         this.pL = 1/this.rate;
@@ -151,7 +149,7 @@ class Piece {
         // add the newly created element and its content into the DOM
         const currentDiv = document.getElementById("div1");
         document.body.insertBefore(newDiv, currentDiv);
-        
+
 
     }
 
@@ -160,7 +158,11 @@ class Piece {
         this.fadeFilter.start(1, 50);
         this.globalNow = audioCtx.currentTime;
 
-        this.r = 7 // randomInt( 0 , 6 );
+		var pieceIndices = [0, 1, 7, 3];
+        this.r = pieceIndices[randomInt(0, pieceIndices.length)]; // randomInt( 0 , 6 ); // 0, 1, 7, 2 is nice but too short, 3
+		// 4 is not great
+		// 5 is ok but also has a legitimate B section
+		// 6 is too much
 
         switch(this.r){
             case 0:
@@ -202,52 +204,35 @@ class Piece {
     rhythmTestsOriginal() {
 
         console.log(`fund: ${this.fund} , chord: ${this.chordIdx} , div ${this.div} , rate: ${this.rate} , end time: ${this.endTime}`);
-        // fund: 339.961843388973 , chord: 1 , div 8 , rate: 0.23251616525007013 , end time: 112
-        // fund: 344.7732229376423 , chord: 2 , div 8 , rate: 0.2775900235619053 , end time: 112
-        // fund: 347.704524373619 , chord: 3 , div 6 , rate: 0.2812388782494855 , end time: 84
-        // fund: 342.86548026406024 , chord: 3 , div 8 , rate: 0.23113541705481946 , end time: 112
-        // fund: 338.5899437510577 , chord: 1 , div 8 , rate: 0.20915176806359595 , end time: 112
-        // fund: 326.30622815558075 , chord: 3 , div 6 , rate: 0.280832522611688 , end time: 84
-        // fund: 351.00854974083495 , chord: 1 , div 7 , rate: 0.2218077534454225 , end time: 98
-        // fund: 358.208078526564 , chord: 2 , div 5 , rate: 0.2345177730841897 , end time: 70
-        // fund: 330.99116122596007 , chord: 1 , div 7 , rate: 0.2883277430912772 , end time: 98
-        // fund: 327.3874142476063 , chord: 0 , div 10 , rate: 0.24158624221449512 , end time: 140
-        // fund: 337.0035869677449 , chord: 0 , div 10 , rate: 0.209981129050708 , end time: 140
-        // fund: 355.0096903066589 , chord: 2 , div 8 , rate: 0.20885708495119337 , end time: 112
-        // fund: 358.44289481792623 , chord: 0 , div 7 , rate: 0.2751849957610972 , end time: 98
-        // fund: 329.096046198592 , chord: 0 , div 6 , rate: 0.2390477088793946 , end time: 84
-        // fund: 326.5484230945359 , chord: 1 , div 8 , rate: 0.29201245456594266 , end time: 112
-    
-        // startTime, stopTime, bufferLength, rate, spliceDiv, fund, cArray, pArray, gainVal
-    
+
         this.pitchedPresetSequenceSpliceDelay( this.div*0 , this.div*4 ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*0 , this.div*6 ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*1 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div * 0.5  ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*2 , this.div*9 ,  2 , 0.25 ,  3 ,     this.fund*0.25  , this.currentChord , this.pALow1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*3 , this.endTime ,  randomFloat( 1 , 2 ) , randomFloat( 0.5 , 1.5 ) ,  this.div * randomArrayValue( [ 0.25 ] ) ,   this.fund*0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*4 , this.endTime ,  randomFloat( 1 , 2 ) , randomFloat( 0.5 , 1.5 ) ,  this.div * randomArrayValue( [ 0.25 ] ) ,   this.fund*0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*5 , this.endTime ,  randomFloat( 1 , 2 ) , randomFloat( 0.5 , 1.5 ) ,  this.div * randomArrayValue( [ 0.25 ] ) ,   this.fund*0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*4 , this.div*9 ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*5 , this.div*9 ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*6 , this.div*9 ,  randomFloat( 1 , 2 ) , this.rate ,  this.div * 2 ,  this.fund * 2  ,  this.currentChord , this.pA , this.gainVal * 0.5 );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*7 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div * 0.33 ,  this.fund ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*7 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div * 0.33 ,  this.fund ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*8 , this.endTime ,  randomFloat( 1 , 2 ) , randomFloat( 0.5 , 1.5 ) ,  this.div * randomArrayValue( [ 0.25 ] ) ,   this.fund*0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*8 , this.endTime ,  randomFloat( 1 , 2 ) , randomFloat( 0.5 , 1.5 ) ,  this.div * randomArrayValue( [ 0.25 ] ) ,   this.fund*0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*8 , this.endTime ,  randomFloat( 1 , 2 ) , randomFloat( 0.5 , 1.5 ) ,  this.div * randomArrayValue( [ 0.25 ] ) ,   this.fund*0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*9 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div * 2 ,  this.fund * 2  ,  this.currentChord , this.pA , this.gainVal * 0.5 );
         this.pitchedPresetSequenceSpliceDelay( this.div*9 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*9 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*9 , this.endTime ,  2 , 0.25 ,  3 ,     this.fund*0.25  , this.currentChord , this.pALow1 , this.gainVal );
-        
+
         this.pitchedPresetSequenceSpliceDelay( this.div*10 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*11 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div ,  this.fund  ,  this.currentChord , this.pAHigh1 , this.gainVal );
         this.pitchedPresetSequenceSpliceDelay( this.div*12 , this.endTime ,  randomFloat( 1 , 2 ) , this.rate ,  this.div * 2 ,  this.fund * 2  ,  this.currentChord , this.pA , this.gainVal * 0.5 );
@@ -255,35 +240,29 @@ class Piece {
     }
 
     coolProgression2Buffer() {
-        
+
         console.log(`fund: ${this.fund} , chord: ${this.chordIdx} , div ${this.div} , rate: ${this.rate} , end time: ${this.endTime}`);
 
         this.pitchedPresetSequenceSpliceDelayBuffer( 0         , this.pL*16 ,  1 , this.rate ,  this.div ,  this.fund * 2 , this.currentChord , this.pAHigh1 , this.gainVal * 4 );
         this.pitchedPresetSequenceSpliceDelayBuffer( this.pL*2 , this.pL*16 ,  1 , this.rate ,  this.div ,  this.fund * 2 , this.currentChord , this.pAHigh1 , this.gainVal * 4 );
         this.pitchedPresetSequenceSpliceDelayBuffer( this.pL*4 , this.pL*16 ,  1 , this.rate ,  this.div ,  this.fund     , this.currentChord , this.pAHigh1 , this.gainVal * 4 );
         this.pitchedPresetSequenceSpliceDelayBuffer( this.pL*6 , this.pL*16 ,  1 , this.rate ,  this.div ,  this.fund * 4 , this.currentChord , this.pAHigh1 , this.gainVal * 4 );
-      
     }
 
     coolProgressionBufferSequence() {
-        
-        console.log(`fund: ${this.fund} , chord: ${this.chordIdx} , div ${this.div} , rate: ${this.rate} , end time: ${this.endTime}`);
-        // fund: 335.4347777094485 , chord: 1 , div 8 , rate: 0.2222089912358651 , end time: 112
-        // fund: 354.4109854924049 , chord: 0 , div 10 , rate: 0.25865510093160443 , end time: 140
 
-        // startTime, stopTime, numberOfBuffers, bufferLength, numberOfPhrases, rate, spliceDiv, fund, cArray, pArray, gainVal
-       
+        console.log(`fund: ${this.fund} , chord: ${this.chordIdx} , div ${this.div} , rate: ${this.rate} , end time: ${this.endTime}`);
+
         this.bufferLength = 1;
 
         this.bufferSequence( 0  , 100 , 3 , this.bufferLength , 100, this.rate ,  this.div ,  this.fund * 2 , this.currentChord , this.pALow1 , this.gainVal * 3 );
         this.bufferSequence( 0  , 100 , 3 , this.bufferLength , 100, this.rate ,  this.div ,  this.fund * 4 , this.currentChord , this.pALow1 , this.gainVal * 4 );
         this.bufferSequence( 0  , 100 , 3 , this.bufferLength , 100, this.rate ,  this.div * 0.5 ,  this.fund * 1 , this.currentChord , this.pALow1 , this.gainVal * 1 );
         this.bufferSequence( 50 , 100 , 3 , this.bufferLength , 100, this.rate ,  this.div * 3 ,  this.fund * 4 , this.currentChord , this.pALow1 , this.gainVal * 3 );
-
     }
 
     coolProgressionBufferSequence2() {
-       
+
         this.bufferLength = randomFloat(0.25, 0.75);
         this.numberOfBuffers = 3;
 
@@ -297,7 +276,7 @@ class Piece {
         // fund: 321.7518105312957 , chord: 1 , buffer length: 0.524101316685738 , numberOfBuffers: 3 div 5 , rate: 0.24451625173432107 , end time: 70
         // fund: 351.057322885385 , chord: 1 , buffer length: 0.31257002863172667 , number of buffers: 3 , div 7 , rate: 0.2717447712886779 , end time: 98
         // fund: 331.7601514586694 , chord: 1 , buffer length: 0.2711487037164132 , number of buffers: 3 , div 7 , rate: 0.2697785683254287 , end time: 98
-        
+
         // startTime, stopTime, numberOfBuffers, bufferLength, numberOfPhrases, rate, spliceDiv, fund, cArray, pArray, gainVal
         this.bufferSequence2( 0  , 100 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div       ,  this.fund * 2 , this.currentChord , this.pALow1 , this.gainVal * 3 );
         this.bufferSequence2( 0  , 100 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div       ,  this.fund * 4 , this.currentChord , this.pALow1 , this.gainVal * 4 );
@@ -320,20 +299,20 @@ class Piece {
         this.div = 3;
         this.rate = 0.28577601206429365;
         this.pL = this.bufferLength / this.rate ;
-        
+
         this.gainVal = 0.2;
 
         const paramText = `fund: ${this.fund} , chord: ${this.chordIdx} , buffer length: ${this.bufferLength} , number of buffers: ${this.numberOfBuffers} , div ${this.div} , rate: ${this.rate} , end time: ${this.endTime}`;
 
         console.log( paramText );
         this.printParams( paramText );
-        
+
         // startTime, stopTime, numberOfBuffers, bufferLength, numberOfPhrases, rate, spliceDiv, fund, cArray, pArray, gainVal
-        
+
         // 1
         this.bufferSequence2( this.pL*0  , this.pL*36 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div ,  this.fund * 1 , this.chord1 , this.pALow1 , this.gainVal * 5 );
         this.bufferSequence2Pan( this.pL*16 , this.pL*36 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord1 , this.pALow1 ,  this.gainVal * 6 * 3 );
-        
+
         // 2
         this.bufferSequence2Pan( this.pL*36 , this.pL*100 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord2 , this.pALow1 , this.gainVal * 7 * 3 );
         this.bufferSequence2Pan( this.pL*36 , this.pL*100 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 4 , this.chord2 , this.pALow1 , this.gainVal * 4 * 3 );
@@ -343,7 +322,7 @@ class Piece {
 
         // 3
         this.bufferSequence2Key( this.pL*78 , this.pL*100 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord2 , this.pALow1 , this.gainVal * 9 );
-        
+
         /*
         this.bufferSequence2( this.pL*20 , this.pL*28 , this.numberOfBuffers , this.bufferLength , 100 , this.rate , this.div , this.fund * 1 , this.chord , this.pALow1 , this.gainVal * 5 );
         this.bufferSequence2( this.pL*20 , this.pL*28 , this.numberOfBuffers , this.bufferLength , 100 , this.rate , this.div , this.fund * 2 , this.chord , this.pALow1 , this.gainVal * 7 );
@@ -353,7 +332,7 @@ class Piece {
     }
 
     coolProgressionBufferSequence4() {
-       
+
         this.bufferLength = randomFloat(0.25, 0.75);
         this.numberOfBuffers = 5;
         this.div = randomInt( 3 , 7 );
@@ -370,7 +349,7 @@ class Piece {
 
         console.log( paramText );
         this.printParams( paramText );
-        
+
         // startTime, stopTime, numberOfBuffers, bufferLength, numberOfPhrases, rate, spliceDiv, fund, cArray, pArray, gainVal
         // this.bufferSequence2( this.pL*0  , this.pL*8 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div , this.fund * 2 , this.currentChord , this.pALow1 , this.gainVal * 5 );
         this.bufferSequence2( this.pL*0  , this.pL*8 , this.numberOfBuffers , this.bufferLength , 100 , this.rate * 2 ,  this.div * 2 , this.fund * 2 , this.currentChord , this.pALow1 , this.gainVal * 5 );
@@ -384,7 +363,7 @@ class Piece {
 
         this.fund = 343.73703558146576;
 
-        this.chord1 = [ 1 , M2 , M3 , P5 ];
+        this.chord1 = [ 1 , P4 , M7 , M2 ];
         this.chord2 = [ 1 , M3 , M3 * 2 , P5 , P5 * 2 , M6 , M2 * 2 ];
         this.chord3 = [ M2 , M2 * 2 , P5 , M6 , P5 * 2 ];
         // this.chord = [ 1 , M2 , M3 , P5 ];
@@ -395,16 +374,16 @@ class Piece {
         this.div = 4; // 3 , 4
         this.rate = 0.28577601206429365;
         this.pL = this.bufferLength / this.rate ;
-        
+
         this.gainVal = 1.1;
 
         const paramText = `fund: ${this.fund} , chord: ${this.chordIdx} , buffer length: ${this.bufferLength} , number of buffers: ${this.numberOfBuffers} , div ${this.div} , rate: ${this.rate} , end time: ${this.endTime}`;
 
         console.log( paramText );
         this.printParams( paramText );
-        
+
         // startTime, stopTime, numberOfBuffers, bufferLength, numberOfPhrases, rate, spliceDiv, fund, cArray, pArray, gainVal
-        
+
         this.bufferSequence2Key(    this.pL*0 ,  this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord2 , this.pAHigh1 , this.gainVal * 1 );
         this.bufferSequence2Key(    this.pL*8 ,  this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord2 , this.pAHigh1 , this.gainVal * 1 );
         this.bufferSequence2KeyPan( this.pL*16 , this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord2 , this.pAHigh1 , this.gainVal * 2 );
@@ -416,6 +395,20 @@ class Piece {
         this.bufferSequence2Key(    this.pL*44 ,  this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 1 , this.fund * 1 , this.chord2 , this.pAHigh1 , this.gainVal * 0.75 );
         this.bufferSequence2Key(    this.pL*48 ,  this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 0.5 , this.fund * 0.5 , this.chord2 , this.pAHigh1 , this.gainVal * 0.5 );
 
+		// - Quick and Dirty B Section - it's really bad rn
+
+		/*
+		this.bufferSequence2Key(    this.pL*89 , this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord1 , this.pAHigh1 , this.gainVal * 1 );
+        this.bufferSequence2Key(    this.pL*89 , this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord1 , this.pAHigh1 , this.gainVal * 1 );
+        this.bufferSequence2KeyPan( this.pL*89 , this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord1 , this.pAHigh1 , this.gainVal * 2 );
+        this.bufferSequence2KeyPan( this.pL*89 , this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 2 , this.chord1 , this.pAHigh1 , this.gainVal * 2 );
+
+        this.bufferSequence2KeyPan( this.pL*89 , this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 4 , this.chord1 , this.pAHigh1 , this.gainVal * 2 );
+        this.bufferSequence2KeyPan( this.pL*89 , this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 2 , this.fund * 4 , this.chord1 , this.pAHigh1 , this.gainVal * 2 );
+
+        this.bufferSequence2Key(    this.pL*89 ,  this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 1 , this.fund * 1 , this.chord1 , this.pAHigh1 , this.gainVal * 0.75 );
+        this.bufferSequence2Key(    this.pL*89 ,  this.pL*89 + this.pL*89 , this.numberOfBuffers , this.bufferLength , 100 , this.rate ,  this.div * 0.5 , this.fund * 0.5 , this.chord1 , this.pAHigh1 , this.gainVal * 0.5 );
+		*/
     }
 
     pitchedPresetSequenceSpliceDelay(startTime, stopTime, bufferLength, rate, spliceDiv, fund, cArray, pArray, gainVal) {
@@ -437,7 +430,7 @@ class Piece {
         const delayLFOFilter = new MyBiquad( "lowpass" , 10 , 1 );
 
         delayLFO.connect(delayLFOFilter);
-        delayLFOFilter.connect(delay.output.gain); 
+        delayLFOFilter.connect(delay.output.gain);
 
         // CREATE BUFFERS
 
@@ -447,7 +440,7 @@ class Piece {
         const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-        
+
         const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
         impulse.impulse().add();
         impulse.constant(64).multiply();
@@ -461,7 +454,7 @@ class Piece {
         let nS = spliceDiv;
 
         for(let i=0; i<nS; i++){
-            
+
             sP = randomFloat(0, 1-(1/nS));
 
             p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -489,7 +482,7 @@ class Piece {
 
         impulse.startAtTime( this.globalNow + startTime );
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime(0, this.globalNow+stopTime, 0.1);
 
         impulse.stopAtTime( this.globalNow + stopTime );
@@ -515,7 +508,7 @@ class Piece {
         const delayLFOFilter = new MyBiquad( "lowpass" , 10 , 1 );
 
         delayLFO.connect(delayLFOFilter);
-        delayLFOFilter.connect(delay.output.gain); 
+        delayLFOFilter.connect(delay.output.gain);
 
         // CREATE BUFFERS
 
@@ -525,7 +518,7 @@ class Piece {
         const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-        
+
         const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
         impulse.impulse().add();
         impulse.constant(64).multiply();
@@ -539,7 +532,7 @@ class Piece {
         let nS = spliceDiv;
 
         for(let i=0; i<nS; i++){
-            
+
             sP = randomFloat(0, 1-(1/nS));
 
             p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -570,7 +563,7 @@ class Piece {
 
         impulse.startAtTime( this.globalNow + startTime );
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime(0, this.globalNow+stopTime, 0.1);
 
         impulse.stopAtTime( this.globalNow + stopTime );
@@ -588,56 +581,56 @@ class Piece {
         delayLFO.sawtooth( 2 ).add();
         delayLFO.playbackRate = rate;
         delayLFO.loop = true;
-    
-        delayLFO.connect(delay.output.gain); 
-    
+
+        delayLFO.connect(delay.output.gain);
+
         // CREATE BUFFERS
-    
+
         const bL = bufferLength;
-    
+
         const b = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
         const c = new MyBuffer2(1, bL, audioCtx.sampleRate);
         c.playbackRate = rate;
         c.loop = true;
-    
+
         const p = new PitchedPresets();
-    
+
         let sP = 0;
-    
+
         let nS = spliceDiv;
-    
+
         for(let i=0; i<nS; i++){
-            
+
             sP = randomFloat(0, 1-(1/nS));
-    
+
             p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
-    
+
             b.spliceBuffer( p.b1.buffer, sP, sP+(1/nS), i/nS);
-    
+
         }
-    
+
         b.normalize(-1, 1);
         b.movingAverage(36);
-    
+
         c.addBuffer( b.buffer );
-    
+
         const f = new MyBiquad("highpass", 10, 1);
-    
+
         c.connect(f);
         f.connect(delay);
-    
+
         f.connect(output);
         delay.connect(output);
-    
+
         output.connect(this.masterGain);
-    
+
         c.startAtTime( this.globalNow + startTime );
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime(0, this.globalNow+stopTime, 0.1);
-    
+
         c.stopAtTime( this.globalNow + stopTime );
         delayLFO.stopAtTime( this.globalNow + stopTime );
 
@@ -659,23 +652,23 @@ class Piece {
         delayLFO.loop = true;
 
         const delayLFOFilter = new MyBiquad( 'lowpass' , 10 , 1 );
-    
+
         delayLFO.connect(delayLFOFilter);
-        delayLFOFilter.connect(delay.output.gain); 
-    
+        delayLFOFilter.connect(delay.output.gain);
+
         // CREATE BUFFERS
-    
+
         const bL = bufferLength;
-    
+
         const nB = numberOfBuffers;
 
         const bA = [];
-    
+
         const p = new PitchedPresets();
         const f = new MyBiquad("highpass", 30, 1);
-    
+
         let sP = 0;
-    
+
         let nS = spliceDiv;
 
         for(let j=0; j<nB; j++){
@@ -683,15 +676,15 @@ class Piece {
             bA[j] = new MyBuffer2(1, bL, audioCtx.sampleRate);
 
             for(let i=0; i<nS; i++){
-            
+
                 sP = randomFloat(0, 1-(1/nS));
-        
+
                 p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
 
                 bA[j].spliceBuffer( p.b1.buffer, sP, sP+(1/nS), i/nS);
 
             }
-   
+
             bA[j].normalize(-1, 1);
             bA[j].movingAverage(36);
             bA[j].ramp( 0 , 1 , 0.0125 , 0.9875 , 0.5 , 0.5 ).multiply( 0 );
@@ -701,12 +694,12 @@ class Piece {
             bA[j].playbackRate = rate;
 
         }
-    
+
         f.connect(delay);
-    
+
         f.connect(output);
         delay.connect(output);
-    
+
         output.connect(this.masterGain);
 
         const nP = numberOfPhrases;
@@ -721,9 +714,9 @@ class Piece {
             }
 
         }
-    
+
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime( 0, this.globalNow + stopTime, 0.1 );
         delayLFO.stopAtTime( this.globalNow + stopTime );
 
@@ -745,26 +738,26 @@ class Piece {
         delayLFO.loop = true;
 
         const delayLFOFilter = new MyBiquad( 'lowpass' , 10 , 1 );
-    
+
         delayLFO.connect(delayLFOFilter);
-        // delayLFOFilter.connect(delay.output.gain); 
+        // delayLFOFilter.connect(delay.output.gain);
 
         // CREATE BUFFERS
-    
+
         const bL = bufferLength;
-    
+
         const nB = numberOfBuffers;
 
         const bA = [];
-    
+
         const p = new PitchedPresets();
         const f = new MyBiquad( "highpass", 20 , 1 );
         const f2 = new MyBiquad( "lowshelf" , 200 , 1 );
         f2.biquad.gain.value = -6;
         const pan = new MyPanner2( 0 );
-    
+
         let sP = 0;
-    
+
         let nS = spliceDiv;
 
         for(let j=0; j<nB; j++){
@@ -772,15 +765,15 @@ class Piece {
             bA[j] = new MyBuffer2(1, bL, audioCtx.sampleRate);
 
             for(let i=0; i<nS; i++){
-            
+
                 sP = randomFloat(0, 1-(1/nS));
-        
+
                 p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
 
                 bA[j].spliceBuffer( p.b1.buffer, sP, sP+(1/nS), i/nS);
 
             }
-   
+
             bA[j].normalize(-1, 1);
             bA[j].movingAverage(36);
             bA[j].ramp( 0 , 1 , 0.0125 , 0.9875 , 0.5 , 0.5 ).multiply( 0 );
@@ -790,13 +783,13 @@ class Piece {
             bA[j].playbackRate = rate;
 
         }
-    
+
         f.connect(f2);
         f2.connect(delay);
 
         f2.connect(output);
         delay.connect(output);
-    
+
         output.connect(this.masterGain);
 
         const nP = numberOfPhrases;
@@ -811,9 +804,9 @@ class Piece {
             } else { break };
 
         }
-    
+
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime( 0, this.globalNow + stopTime, 0.1 );
         delayLFO.stopAtTime( this.globalNow + stopTime );
 
@@ -835,18 +828,18 @@ class Piece {
         delayLFO.loop = true;
 
         const delayLFOFilter = new MyBiquad( 'lowpass' , 10 , 1 );
-    
+
         delayLFO.connect(delayLFOFilter);
-        // delayLFOFilter.connect(delay.output.gain); 
+        // delayLFOFilter.connect(delay.output.gain);
 
         // CREATE BUFFERS
-    
+
         const bL = bufferLength;
-    
+
         const nB = numberOfBuffers;
 
         const bA = [];
-    
+
         const p = new PitchedPresets();
         const f = new MyBiquad( "highpass", 20 , 1 );
         const f2 = new MyBiquad( "lowshelf" , 200 , 1 );
@@ -854,9 +847,9 @@ class Piece {
         const pan = new MyPanner2( 0 );
 
         const pB = new MyBuffer2( 1 , bL , audioCtx.sampleRate );
-    
+
         let sP = 0;
-    
+
         let nS = spliceDiv;
 
         for(let j=0; j<nB; j++){
@@ -864,9 +857,9 @@ class Piece {
             bA[j] = new MyBuffer2(1, bL, audioCtx.sampleRate);
 
             for(let i=0; i<nS; i++){
-            
+
                 sP = randomFloat(0, 1-(1/nS));
-        
+
                 p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
 
                 pB.spliceBuffer( p.b1.buffer, sP, sP+(1/nS), i/nS);
@@ -875,7 +868,7 @@ class Piece {
                 bA[j].addBuffer( pB.buffer );
 
             }
-   
+
             bA[j].normalize(-1, 1);
             bA[j].movingAverage(36);
             bA[j].ramp( 0 , 1 , 0.0125 , 0.9875 , 0.5 , 0.5 ).multiply( 0 );
@@ -885,13 +878,13 @@ class Piece {
             bA[j].playbackRate = rate;
 
         }
-    
+
         f.connect(f2);
         f2.connect(delay);
 
         f2.connect(output);
         delay.connect(output);
-    
+
         output.connect(this.masterGain);
 
         const nP = numberOfPhrases;
@@ -906,9 +899,9 @@ class Piece {
             } else { break };
 
         }
-    
+
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime( 0, this.globalNow + stopTime, 0.1 );
         delayLFO.stopAtTime( this.globalNow + stopTime );
 
@@ -930,18 +923,18 @@ class Piece {
         delayLFO.loop = true;
 
         const delayLFOFilter = new MyBiquad( 'lowpass' , 10 , 1 );
-    
+
         delayLFO.connect(delayLFOFilter);
-        // delayLFOFilter.connect(delay.output.gain); 
+        // delayLFOFilter.connect(delay.output.gain);
 
         // CREATE BUFFERS
-    
+
         const bL = bufferLength;
-    
+
         const nB = numberOfBuffers;
 
         const bA = [];
-    
+
         const p = new PitchedPresets();
         const f = new MyBiquad( "highpass", 20 , 1 );
         const f2 = new MyBiquad( "lowshelf" , 200 , 1 );
@@ -949,9 +942,9 @@ class Piece {
         const pan = new MyPanner2( 0 );
 
         const pB = new MyBuffer2( 1 , bL , audioCtx.sampleRate );
-    
+
         let sP = 0;
-    
+
         let nS = spliceDiv;
 
         for(let j=0; j<nB; j++){
@@ -959,9 +952,9 @@ class Piece {
             bA[j] = new MyBuffer2(1, bL, audioCtx.sampleRate);
 
             for(let i=0; i<nS; i++){
-            
+
                 sP = randomFloat(0, 1-(1/nS));
-        
+
                 p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
 
                 pB.spliceBuffer( p.b1.buffer, sP, sP+(1/nS), i/nS);
@@ -970,7 +963,7 @@ class Piece {
                 bA[j].addBuffer( pB.buffer );
 
             }
-   
+
             bA[j].normalize(-1, 1);
             bA[j].movingAverage(36);
             bA[j].ramp( 0 , 1 , 0.0125 , 0.9875 , 0.5 , 0.5 ).multiply( 0 );
@@ -980,15 +973,15 @@ class Piece {
             bA[j].playbackRate = rate;
 
         }
-    
+
         f.connect(f2);
-        
+
         f2.connect(delay);
         f2.connect(pan);
 
         // delay.connect(output);
         pan.connect(output);
-    
+
         output.connect(this.masterGain);
 
         const nP = numberOfPhrases;
@@ -1004,9 +997,9 @@ class Piece {
             } else { break };
 
         }
-    
+
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime( 0, this.globalNow + stopTime, 0.1 );
         delayLFO.stopAtTime( this.globalNow + stopTime );
 
@@ -1028,26 +1021,26 @@ class Piece {
         delayLFO.loop = true;
 
         const delayLFOFilter = new MyBiquad( 'lowpass' , 10 , 1 );
-    
+
         delayLFO.connect(delayLFOFilter);
-        // delayLFOFilter.connect(delay.output.gain); 
+        // delayLFOFilter.connect(delay.output.gain);
 
         // CREATE BUFFERS
-    
+
         const bL = bufferLength;
-    
+
         const nB = numberOfBuffers;
 
         const bA = [];
-    
+
         const p = new PitchedPresets();
         const f = new MyBiquad( "highpass", 20 , 1 );
         const f2 = new MyBiquad( "lowshelf" , 200 , 1 );
         f2.biquad.gain.value = -6;
         const pan = new MyPanner2( 0 );
-    
+
         let sP = 0;
-    
+
         let nS = spliceDiv;
 
         for(let j=0; j<nB; j++){
@@ -1055,15 +1048,15 @@ class Piece {
             bA[j] = new MyBuffer2(1, bL, audioCtx.sampleRate);
 
             for(let i=0; i<nS; i++){
-            
+
                 sP = randomFloat(0, 1-(1/nS));
-        
+
                 p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
 
                 bA[j].spliceBuffer( p.b1.buffer, sP, sP+(1/nS), i/nS);
 
             }
-   
+
             bA[j].normalize(-1, 1);
             bA[j].movingAverage(36);
             bA[j].ramp( 0 , 1 , 0.0125 , 0.9875 , 0.5 , 0.5 ).multiply( 0 );
@@ -1073,14 +1066,14 @@ class Piece {
             bA[j].playbackRate = rate;
 
         }
-    
+
         f.connect(f2);
         f2.connect(pan);
         f2.connect(delay);
 
         // delay.connect(output);
         pan.connect(output);
-    
+
         output.connect(this.masterGain);
 
         const nP = numberOfPhrases;
@@ -1096,9 +1089,9 @@ class Piece {
             } else { break };
 
         }
-    
+
         delayLFO.startAtTime( this.globalNow + startTime );
-        
+
         output.gain.gain.setTargetAtTime( 0, this.globalNow + stopTime, 0.1 );
         delayLFO.stopAtTime( this.globalNow + stopTime );
 
@@ -1108,50 +1101,50 @@ class Piece {
 
         this.fund = 2 * randomFloat(160, 180);
         this.gainVal = 1.5;
-    
-        this.pA =  [ 
+
+        this.pA =  [
             'pitch23' , 'pitch27' , 'pitch1' , 'pitch3' , 'pitch7', 'pitch9' , 'pitch10', 'pitch12' , 'pitch13', 'pitch20'
         ];
-    
-        this.pAHigh1 =  [ 
+
+        this.pAHigh1 =  [
             'pitch23' , 'pitch27' , 'pitch1' , 'pitch12' , 'pitch13' , 'pitch20'
         ];
-    
-        this.pALow1 =  [ 
+
+        this.pALow1 =  [
             'pitch23' , 'pitch27' , 'pitch20'
         ];
-    
+
         this.c1A = [1, M2, P4, 1/m3, M6];
-        this.c1B = [1/M2/P4, 1, M2]; 
+        this.c1B = [1/M2/P4, 1, M2];
         this.c1C = [1, M2, M3, P5];
         this.c1D = [1, M2, M3, P5, M6];
-    
+
         this.chordArray = [ this.c1B , this.c1C , this.c1D ]; // c1D , c1C* , c1A , c1B
-    
+
         this.chordIdx = 1 // randomInt( 0 , chordArray.length );
         this.currentChord = this.chordArray[ this.chordIdx ];
-    
-        this.bL = randomFloat( 1 , 2 );
+
+        this.bL = randomFloat( 1.25 , 2.5 );
         this.rate = 1/this.bL;
         this.pL = 1/this.rate;
-        this.nPhrases = randomInt( 20 , 30 );
+        this.nPhrases = 40; // randomInt( 30 , 40 );
 
         console.log(`this.fund: ${this.fund} , chord: ${this.chordIdx} , bufferLength: ${this.bL} , this.rate: ${this.rate} , this.nPhrases ${this.nPhrases}`);
 
         // startTime, stopTime, bufferLength, this.rate, spliceDiv, this.fund, cArray, pArray, this.gainVal
-        
+
         for( let i = 0 ; i < this.nPhrases ; i++ ){
-        
-            this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  this.bL , this.rate ,  randomInt( 3 , 9 ) ,  this.fund * 0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-            // pitchedPresetSequenceSpliceDelay( (i + randomFloat( 0 , 0.5 ) ) * pL ,  ( i + randomFloat( 0.6 , 1.5 ) ) * pL ,  2 , this.rate ,  div ,  this.fund * 0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
-        
+
+			var chord = i < this.nPhrases / 2 ? this.chordArray[1] : this.chordArray[2];
+
+            this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  this.bL , this.rate ,  randomInt( 3 , 9 ) ,  this.fund * 0.5  , chord , this.pAHigh1 , this.gainVal );
+
             if ( i > this.nPhrases * 0.25 ){
-        
-                this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  this.bL , this.rate , randomInt( 3 , 9 ) , this.fund , this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
+                this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  this.bL , this.rate , randomInt( 3 , 9 ) , this.fund , chord , this.pAHigh1 , this.gainVal );
+
             }
-        
+
         }
 
     }
@@ -1160,29 +1153,29 @@ class Piece {
 
         this.fund = 2 * randomFloat(160, 180);
         this.gainVal = 0.75;
-    
-        this.pA =  [ 
+
+        this.pA =  [
             'pitch23' , 'pitch27' , 'pitch1' , 'pitch3' , 'pitch7', 'pitch9' , 'pitch10', 'pitch12' , 'pitch13', 'pitch20'
         ];
-    
-        this.pAHigh1 =  [ 
+
+        this.pAHigh1 =  [
             'pitch23' , 'pitch27' , 'pitch1' , 'pitch12' , 'pitch13' , 'pitch20'
         ];
-    
-        this.pALow1 =  [ 
+
+        this.pALow1 =  [
             'pitch23' , 'pitch27' , 'pitch20'
         ];
-    
+
         this.c1A = [1, M2, P4, 1/m3, M6];
-        this.c1B = [1/M2/P4, 1, M2]; 
+        this.c1B = [1/M2/P4, 1, M2];
         this.c1C = [1, M2, M3, P5];
         this.c1D = [1, M2, M3, P5, M6];
-    
+
         this.chordArray = [ this.c1B , this.c1C , this.c1D ]; // c1D , c1C* , c1A , c1B
-    
+
         this.chordIdx = 1 // randomInt( 0 , chordArray.length );
         this.currentChord = this.chordArray[ this.chordIdx ];
-    
+
         this.div = randomInt( 5 , 9 );
         this.rate = 0.5;
         this.pL = 1/this.rate;
@@ -1191,29 +1184,29 @@ class Piece {
         console.log(`this.fund: ${this.fund} , chord: ${this.chordIdx} , bufferLength: ${this.bL} , this.rate: ${this.rate} , this.nPhrases ${this.nPhrases}`);
 
         // startTime, stopTime, bufferLength, this.rate, spliceDiv, this.fund, cArray, pArray, this.gainVal
-        
+
         for( let i = 0 ; i < this.nPhrases ; i++ ){
-        
+
             this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  2 , this.rate ,  this.div ,  this.fund * 0.5  ,  this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
             if ( i > this.nPhrases * 0.125 ){
-        
+
                 this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  2 , this.rate , this.div , this.fund , this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
             }
 
             if ( i > this.nPhrases * 0.25 ){
-        
+
                 this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  2 , this.rate , this.div , this.fund * 0.5 , this.currentChord , this.pAHigh1 , this.gainVal );
-        
+
             }
 
             if ( i > this.nPhrases * 0.5 ){
-        
+
                 this.pitchedPresetSequenceSpliceDelayPan( i * this.pL ,  ( i + 1 ) * this.pL ,  2 , this.rate , this.div , this.fund * 0.25 , this.currentChord , this.pAHigh1 , this.gainVal * 0.5 );
-        
+
             }
-        
+
         }
 
     }

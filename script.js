@@ -23,10 +23,8 @@ function bufferLoaded(){
 //--------------------------------------------------------------
 
 function runPatch(){
-		
-		piece.initParams();
-		piece.start();
-
+	piece.initParams();
+	piece.start();
 }
 
 //--------------------------------------------------------------

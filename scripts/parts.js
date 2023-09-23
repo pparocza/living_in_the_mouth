@@ -11,7 +11,7 @@ const pitchedPresetSequenceSplice = (startTime, stopTime, bufferLength, rate, sp
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -25,7 +25,7 @@ const pitchedPresetSequenceSplice = (startTime, stopTime, bufferLength, rate, sp
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -50,7 +50,7 @@ const pitchedPresetSequenceSplice = (startTime, stopTime, bufferLength, rate, sp
     output.connect(masterGain);
 
     impulse.startAtTime( globalNow + startTime );
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
@@ -71,7 +71,7 @@ const pitchedPresetSequenceSplicePan = (startTime, stopTime, bufferLength, rate,
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -85,7 +85,7 @@ const pitchedPresetSequenceSplicePan = (startTime, stopTime, bufferLength, rate,
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -119,7 +119,7 @@ const pitchedPresetSequenceSplicePan = (startTime, stopTime, bufferLength, rate,
         i++
 
     }
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
@@ -145,7 +145,7 @@ const pitchedPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rat
     const delayLFOFilter = new MyBiquad( "lowpass" , 10 , 1 );
 
     delayLFO.connect(delayLFOFilter);
-    delayLFOFilter.connect(delay.output.gain); 
+    delayLFOFilter.connect(delay.output.gain);
 
     // CREATE BUFFERS
 
@@ -155,7 +155,7 @@ const pitchedPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rat
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -169,7 +169,7 @@ const pitchedPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rat
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -197,7 +197,7 @@ const pitchedPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rat
 
     impulse.startAtTime( globalNow + startTime );
     delayLFO.startAtTime( globalNow + startTime );
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
@@ -215,7 +215,7 @@ const fxPresetSequenceSplice = (startTime, stopTime, bufferLength, rate, spliceD
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -229,7 +229,7 @@ const fxPresetSequenceSplice = (startTime, stopTime, bufferLength, rate, spliceD
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -253,7 +253,7 @@ const fxPresetSequenceSplice = (startTime, stopTime, bufferLength, rate, spliceD
     output.connect(masterGain);
 
     impulse.startAtTime( globalNow + startTime );
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
@@ -272,7 +272,7 @@ const fxPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rate, sp
     delayLFO.playbackRate = rate;
     delayLFO.loop = true;
 
-    delayLFO.connect(delay.output.gain); 
+    delayLFO.connect(delay.output.gain);
 
     // CREATE BUFFERS
 
@@ -282,7 +282,7 @@ const fxPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rate, sp
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -296,7 +296,7 @@ const fxPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rate, sp
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -325,7 +325,7 @@ const fxPresetSequenceSpliceDelay = (startTime, stopTime, bufferLength, rate, sp
 
     impulse.startAtTime( globalNow + startTime );
     delayLFO.startAtTime( globalNow + startTime );
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
@@ -347,7 +347,7 @@ const fxPresetSequenceSplicePan = (startTime, stopTime, bufferLength, rate, spli
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -361,7 +361,7 @@ const fxPresetSequenceSplicePan = (startTime, stopTime, bufferLength, rate, spli
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -395,7 +395,7 @@ const fxPresetSequenceSplicePan = (startTime, stopTime, bufferLength, rate, spli
         i++
 
     }
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
@@ -412,7 +412,7 @@ const percussionPresetSequenceSplice = (startTime, stopTime, bufferLength, rate,
     const aB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const sB = new MyBuffer2(1, bL, audioCtx.sampleRate);
     const c = new MyConvolver(1, bL, audioCtx.sampleRate);
-    
+
     const impulse = new MyBuffer2(1, 1, audioCtx.sampleRate);
     impulse.impulse().add();
     impulse.constant(64).multiply();
@@ -426,7 +426,7 @@ const percussionPresetSequenceSplice = (startTime, stopTime, bufferLength, rate,
     let nS = spliceDiv;
 
     for(let i=0; i<nS; i++){
-        
+
         sP = randomFloat(0, 1-(1/nS));
 
         p[randomArrayValue(pArray)](fund*randomArrayValue(cArray));
@@ -450,7 +450,7 @@ const percussionPresetSequenceSplice = (startTime, stopTime, bufferLength, rate,
     output.connect(masterGain);
 
     impulse.startAtTime( globalNow + startTime );
-    
+
     output.gain.gain.setTargetAtTime(0, globalNow+stopTime, 0.1);
 
     impulse.stopAtTime( globalNow + stopTime );
